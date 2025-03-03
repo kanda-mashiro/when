@@ -19,13 +19,17 @@ func ExactMonthDate(s rules.Strategy) rules.Rule {
 		RegExp: regexp.MustCompile("" +
 			"(?:\\b|^)" + // can't use \W here due to Chinese characters
 			"(?:" +
-			"(1[0-2]|[1-9]|" + MON_WORDS_PATTERN + ")" + "(?:\\s*)" +
-			"(月|-|/|\\.)" + "(?:\\s*)" +
+			"(1[0-2]|[1-9])" + "\\s*" + "(?:-|/|\\.)" + "\\s*" + "(1[0-9]|2[0-9]|3[0-1]|[1-9])" +
+			"|" +
+			"(?:" +
+			"(1[0-2]|[1-9]|" + MON_WORDS_PATTERN + ")" + "\\s*" +
+			"(月)" + "\\s*" +
 			")?" +
 			"(?:" +
-			"(1[0-9]|2[0-9]|3[0-1]|[1-9]|" + DAY_WORDS_PATTERN + ")" + "(?:\\s*)" +
-			"(日|号)?" +
-			")?",
+			"(1[0-9]|2[0-9]|3[0-1]|[1-9]|" + DAY_WORDS_PATTERN + ")" + "\\s*" +
+			"(日|号)" +
+			")?" +
+			")",
 		),
 
 		Applier: func(m *rules.Match, c *rules.Context, o *rules.Options, ref time.Time) (bool, error) {
@@ -38,14 +42,14 @@ func ExactMonthDate(s rules.Strategy) rules.Rule {
 			var dayInt = 1
 			var exist bool
 
-			if m.Captures[1] == "" && m.Captures[3] == "" {
+			if m.Captures[0] == "" && m.Captures[2] == "" && m.Captures[4] == "" {
 				return false, nil
 			}
 
-			if m.Captures[0] != "" {
-				monInt, exist = MON_WORDS[compressStr(m.Captures[0])]
+			if m.Captures[2] != "" {
+				monInt, exist = MON_WORDS[compressStr(m.Captures[2])]
 				if !exist {
-					mon, err := strconv.Atoi(m.Captures[0])
+					mon, err := strconv.Atoi(m.Captures[2])
 					if err != nil {
 						return false, nil
 					}
@@ -53,15 +57,28 @@ func ExactMonthDate(s rules.Strategy) rules.Rule {
 				}
 			}
 
-			if m.Captures[2] != "" {
-				dayInt, exist = DAY_WORDS[compressStr(m.Captures[2])]
+			if m.Captures[4] != "" {
+				dayInt, exist = DAY_WORDS[compressStr(m.Captures[4])]
 				if !exist {
-					day, err := strconv.Atoi(m.Captures[2])
+					day, err := strconv.Atoi(m.Captures[4])
 					if err != nil {
 						return false, nil
 					}
 					dayInt = day
 				}
+			}
+
+			if m.Captures[0] != "" && m.Captures[1] != "" {
+				mon, err := strconv.Atoi(m.Captures[0])
+				if err != nil {
+					return false, nil
+				}
+				day, err := strconv.Atoi(m.Captures[1])
+				if err != nil {
+					return false, nil
+				}
+				monInt = mon
+				dayInt = day
 			}
 
 			c.Month = &monInt

@@ -1,12 +1,12 @@
 package zh_test
 
 import (
-	"github.com/olebedev/when/rules/zh"
 	"testing"
 	"time"
 
 	"github.com/olebedev/when"
 	"github.com/olebedev/when/rules"
+	"github.com/olebedev/when/rules/zh"
 )
 
 func TestWeekday(t *testing.T) {

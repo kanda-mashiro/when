@@ -74,7 +74,7 @@ func (f *F) Find(text string) *Match {
 		}
 	}
 
-	if len(m.Captures) == 0 {
+	if len(m.Captures) == 0 || m.Left == -1 {
 		return nil
 	}
 
