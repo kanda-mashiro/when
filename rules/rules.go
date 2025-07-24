@@ -78,6 +78,10 @@ func (f *F) Find(text string) *Match {
 		return nil
 	}
 
-	m.Text = text[m.Left:m.Right]
+	if m.Left >= 0 && m.Right > m.Left {
+		m.Text = text[m.Left:m.Right]
+	} else {
+		return nil
+	}
 	return m
 }
